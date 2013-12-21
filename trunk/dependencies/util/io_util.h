@@ -1,4 +1,4 @@
-/* Copyright (c) David Cunningham and the Grit Game Engine project 2012
+/* Copyright (c) David Cunningham and the Grit Game Engine project 2013
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,31 +19,37 @@
  * THE SOFTWARE.
  */
 
-#define _POSIX_C_SOURCE 199309
-#include <time.h>
-#include <assert.h>
-#include <stdio.h>
+#ifndef IO_UTIL_H
+#define IO_UTIL_H
 
-void mysleep(long micros)
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
+
+#include <string>
+#include <iostream>
+#include <fstream>
+
+#include "exception.h"
+
+void io_util_open (const std::string &filename, std::ofstream &out);
+void io_util_open (const std::string &filename, std::ifstream &in);
+
+template<class T> void io_util_write (const std::string &filename, std::ofstream &out, const T &v)
 {
-        if (micros<=0) return;
-        struct timespec t = {0,micros*1000};
-        int r = nanosleep(&t, NULL);
-        if (r) {
-                perror("sleep");
-        }
+    out.write((char*)&v, sizeof(v));
+    if (!out.good()) {
+        EXCEPT<<filename<<": "<<std::string(strerror(errno))<<std::endl;
+    }   
 }
 
-unsigned long long micros (void) {
-#ifdef USE_GETTIMEOFDAY
-    struct timeval t;
-    gettimeofday(&t, NULL);
-    return ((unsigned long long)t.tv_sec)*1000000ULL + ((unsigned long long)t.tv_usec);
-#else
-    struct timespec t;
-    clock_gettime(CLOCK_MONOTONIC, &t);
-    return ((unsigned long long)t.tv_sec)*1000000ULL + ((unsigned long long)t.tv_nsec/1000ULL);
+template<class T> void io_util_read (const std::string &filename, std::ifstream &in, T &v)
+{
+    in.read((char*)&v, sizeof(v));
+    if (!in.good()) {
+        EXCEPT<<filename<<": "<<std::string(strerror(errno))<<std::endl;
+    }   
+
+}
+
 #endif
-}
-
-// vim: shiftwidth=8:tabstop=8:expandtab

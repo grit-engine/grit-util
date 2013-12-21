@@ -1,4 +1,4 @@
-/* Copyright (c) David Cunningham and the Grit Game Engine project 2012
+/* Copyright (c) David Cunningham and the Grit Game Engine project 2013
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,39 +19,15 @@
  * THE SOFTWARE.
  */
 
-#include <map>
-#include <set>
+#ifndef INTRINSICS_H
+#define INTRINSICS_H
 
-#define DIRECTINPUT_VERSION 0x0800
-#include <dinput.h>
+#ifdef __GNUC__
+#define NORETURN1
+#define NORETURN2 __attribute__ ((noreturn))
+#else
+#define NORETURN1 __declspec(noreturn)
+#define NORETURN2
+#endif
 
-#include "../Keyboard.h"
-
-
-class KeyboardDirectInput8 : public Keyboard {
-
-public:
-
-        KeyboardDirectInput8 (size_t);
-        virtual ~KeyboardDirectInput8 ();
-
-        virtual Presses getPresses();
-
-        virtual bool hasFocus (void);
-
-protected:
-
-        HWND win;
-
-        IDirectInput8 *directInput;
-
-        IDirectInputDevice8 *dev;
-
-        std::map<DWORD,const char *> keysUp, keysDown, keysRep, keysText, keysTextShifted;
-        std::map<Press,DWORD> keyCode;
-        std::map<DWORD, ULONGLONG> pressTime;
-
-        ULONGLONG lastTime;
-};
-
-// vim: shiftwidth=8:tabstop=8:expandtab
+#endif

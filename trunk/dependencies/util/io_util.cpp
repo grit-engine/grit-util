@@ -1,4 +1,4 @@
-/* Copyright (c) David Cunningham and the Grit Game Engine project 2012
+/* Copyright (c) David Cunningham and the Grit Game Engine project 2013
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,44 +19,26 @@
  * THE SOFTWARE.
  */
 
-#define DIRECTINPUT_VERSION 0x0800
-#include <dinput.h>
+#include <string>
+#include <iostream>
+#include <fstream>
 
-#include "../Mouse.h"
+#include "io_util.h"
+#include "exception.h"
 
+void io_util_open (const std::string &filename, std::ofstream &out)
+{
+    out.open(filename);
+    if (!out.good()) {
+        EXCEPT<<filename<<": "<<std::string(strerror(errno))<<std::endl;
+    }
+}
 
-class MouseDirectInput8 : public Mouse {
+void io_util_open (const std::string &filename, std::ifstream &in)
+{
+    in.open(filename);
+    if (!in.good()) {
+        EXCEPT<<filename<<": "<<std::string(strerror(errno))<<std::endl;
+    }
+}
 
-public:
-
-        MouseDirectInput8 (size_t);
-        virtual ~MouseDirectInput8 ();
-
-        virtual bool getEvents(std::vector<int> *clicks,
-                               int *x, int *y, int *rel_x, int *rel_y);
-
-        virtual void setPos(int x, int y);
-
-        virtual void setHide(bool toggle);
-        virtual bool getHide();
-
-        virtual void setGrab(bool toggle);
-        virtual bool getGrab();
-
-protected:
-
-        HWND win;
-
-        IDirectInput8 *directInput;
-
-        IDirectInputDevice8 *dev;
-
-        int current_x, current_y;
-
-        int scroll;
-
-        bool hidden;
-        bool grabbed;
-};
-
-// vim: shiftwidth=8:tabstop=8:expandtab
