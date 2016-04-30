@@ -30,8 +30,8 @@
 #define CVERB CLog(__FILE__,__LINE__,false)
 #define CTRACE(x) CVERB << #x << " " << (x) << std::endl
 
-#include <console.h>
-#include <exception.h>
+#include "console.h"
+#include "exception.h"
 
 /** Called when something so bad happens that the process has to exit uncleanly. */
 void app_fatal();
