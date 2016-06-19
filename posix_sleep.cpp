@@ -19,7 +19,11 @@
  * THE SOFTWARE.
  */
 
+// Apparently this is now defined by default with gcc?
+#ifndef _POSIX_C_SOURCE
 #define _POSIX_C_SOURCE 199309
+#endif
+
 #include <ctime>
 #include <cassert>
 #include <cstdio>
