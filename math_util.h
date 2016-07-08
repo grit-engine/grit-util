@@ -36,7 +36,7 @@ struct Vector3;
 #ifdef WIN32
 #define my_isnan _isnan
 #else
-#define my_isnan isnan
+#define my_isnan std::isnan
 #endif
 
 #ifndef M_PI
