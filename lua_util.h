@@ -104,6 +104,11 @@ static inline Vector3 check_v3 (lua_State *L, int idx)
 static inline void push_v3 (lua_State *L, const Vector3 &v)
 { lua_pushvector3(L, v.x, v.y, v.z); }
 
+static inline Vector4 check_v4 (lua_State *L, int idx)
+{ Vector4 v; lua_checkvector4(L, idx, &v.x, &v.y, &v.z, &v.w); return v; } 
+static inline void push_v4 (lua_State *L, const Vector4 &v)
+{ lua_pushvector4(L, v.x, v.y, v.z, v.w); }
+
 static inline Quaternion check_quat (lua_State *L, int idx)
 { Quaternion v; lua_checkquat(L, idx, &v.w, &v.x, &v.y, &v.z); return v; } 
 static inline void push_quat (lua_State *L, const Quaternion &v)
