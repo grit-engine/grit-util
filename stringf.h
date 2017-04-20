@@ -29,6 +29,11 @@
 #ifndef STRINGF_H
 #define STRINGF_H
 
+#ifdef WIN32
+// Not equivalent generally, but equivalent when used below.
+#    define snprintf _snprintf
+#endif
+
 template<typename ...Args>
 std::string stringf (const std::string &fmt, Args... args)
 {
