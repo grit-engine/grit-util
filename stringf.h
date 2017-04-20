@@ -32,7 +32,8 @@
 template<typename ...Args>
 std::string stringf (const std::string &fmt, Args... args)
 {
-    size_t output_size = std::snprintf(nullptr, 0, fmt.c_str(), args...);
+    // MSVC did not have std::snprintf
+    size_t output_size = snprintf(nullptr, 0, fmt.c_str(), args...);
 	output_size += 1;  // For '\0'.
     std::unique_ptr<char[]> buf(new char[output_size]); 
     std::snprintf(buf.get(), output_size, fmt.c_str(), args...);
