@@ -43,34 +43,35 @@ class CentralisedLog {
 
     public:
 
-        // Chickening out of making this thread safe -- because the only sane way to do it is to introduce
-        // yield points at the std::endl, but then if someone forgets a std::endl it will deadlock.
+    // Chickening out of making this thread safe -- because the only sane way to do it is to
+    // introduce yield points at the std::endl, but then if someone forgets a std::endl it will
+    // deadlock.
 
-        void print (const std::string &line)
-        {
-                std::cout << line << RESET << std::endl;
-                buffer << line << RESET << std::endl;
-        }
+    void print (const std::string &line)
+    {
+        std::cout << line << RESET << std::endl;
+        buffer << line << RESET << std::endl;
+    }
 
-        std::string consolePoll (void) 
-        {
-                std::string r = buffer.str();
-                buffer.str("");
-                return r;
-        }
-            
-        // used for storing incomplete lines (up to std::endl)
-        std::stringstream tmp;
+    std::string consolePoll (void) 
+    {
+        std::string r = buffer.str();
+        buffer.str("");
+        return r;
+    }
+        
+    // used for storing incomplete lines (up to std::endl)
+    std::stringstream tmp;
 
     protected:
 
-        std::stringstream buffer;
+    std::stringstream buffer;
 
 };
 
 extern CentralisedLog clog;
 
-/** A class tha (via macros below) allows simple output of debug info from the
+/** A class that (via macros below) allows simple output of debug info from the
  * c++ side of the code.  For example:
  * <pre>
         CLOG << "hello world" << std::endl;
@@ -83,47 +84,38 @@ class CLog {
 
     public:
 
-        CLog (const char *file, int line, bool error)
-        {
-                (error ? (*this) << BOLD << RED << "ERROR" << RESET
-                       : (*this) << BOLD << BLUE << "VERBOSE" << RESET)
-                
-                <<" ("<<BOLD<<file<<NOBOLD<<":"<<BOLD<<line<<NOBOLD<<"): ";
+    CLog (const char *file, int line, bool error)
+    {
+        (error ? (*this) << BOLD << RED << "ERROR" << RESET
+               : (*this) << BOLD << BLUE << "VERBOSE" << RESET)
+        
+        << " ("<<BOLD<<file<<NOBOLD<<":"<<BOLD<<line<<NOBOLD<<"): ";
+    }
+
+    CLog (void)
+    {
+    }
+
+    ~CLog (void)
+    {
+    }
+
+    typedef std::ostream &manip(std::ostream&);
+
+    CLog &operator<< (manip *o) {
+        if (o == (manip*)std::endl) {
+            clog.print(clog.tmp.str());
+            clog.tmp.str("");
+        } else {
+            clog.tmp << o;
         }
+        return *this;
+    }
 
-        CLog ()
-        {
-        }
-
-        ~CLog (void)
-        {
-        }
-
-        typedef std::ostream &manip(std::ostream&);
-
-        CLog &operator<< (manip *o)
-        {
-                if (o == (manip*)std::endl) {
-                        clog.print(clog.tmp.str());
-                        clog.tmp.str("");
-                } else {
-                        clog.tmp << o;
-                }
-                return *this;
-        }
-
-        template<typename T> CLog &operator<<(T const &o)
-        {
-                clog.tmp << o;
-                return *this;
-        }
-
+    template<typename T> CLog &operator<< (T const &o) {
+        clog.tmp << o;
+        return *this;
+    }
 };
 
-
-/** Macro for throwing an exception easily. */
-#define GRIT_EXCEPT(msg) EXCEPTEX << msg << ExceptionStream::EndL()
-
 #endif
-
-// vim: tabstop=8:shiftwidth=8:expandtab

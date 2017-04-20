@@ -28,10 +28,16 @@
 #include <iostream>
 
 #include "intrinsics.h"
+#include "stringf.h"
 
 #define EXCEPTEX ExceptionStream(__FILE__,__LINE__)
 #define EXCEPT ExceptionStream()
 #define ENDL ExceptionStream::EndL()
+
+/** Macro for throwing an exception easily. */
+#define GRIT_EXCEPT(msg) EXCEPTEX << msg << ENDL
+#define EXCEPTF(msg, ...) EXCEPT << stringf(msg, __VA_ARGS__) << ENDL
+#define EXCEPTEXF(msg, ...) EXCEPTEX << stringf(msg, __VA_ARGS__) << ENDL
 
 #define ASSERT(x) do { if (!(x)) { EXCEPTEX << "Assertion failed: " << #x << std::endl; } } while (0)
 
