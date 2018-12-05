@@ -189,6 +189,7 @@ static int lua_utf8_sub (lua_State *L)
                 case 3:
                 if (!lua_isnil(L,3))
                         limit = check_t<long>(L,3);
+                __attribute__((fallthrough));
                 case 2:
                 if (!lua_isnil(L,2))
                         start = check_t<long>(L,2);
@@ -247,6 +248,7 @@ static int lua_utf8_find (lua_State *L)
                 case 4:
                 if (!lua_isnil(L,4))
                         plain = check_bool(L, 4);
+                __attribute__((fallthrough));
                 case 3:
                 if (!lua_isnil(L,3))
                         init = check_t<int32_t>(L,3);
