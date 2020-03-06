@@ -42,8 +42,8 @@ extern "C" {
 
 // UTILITIES
 
-static std::string to_utf8 (const UnicodeString &ustr) {
-        struct Sink : public ByteSink {
+static std::string to_utf8 (const icu::UnicodeString &ustr) {
+        struct Sink : public icu::ByteSink {
                 std::string str;
                 virtual void Append (const char* bytes, int32_t n) {
                         str.append(bytes, n);
@@ -54,13 +54,13 @@ static std::string to_utf8 (const UnicodeString &ustr) {
         return sink.str;
 }
 
-static void my_lua_error (lua_State *L, const UnicodeString &str)
+static void my_lua_error (lua_State *L, const icu::UnicodeString &str)
 { my_lua_error(L, to_utf8(str)); }
 
-//static void my_lua_error (lua_State *L, const UnicodeString &str, unsigned long level)
+//static void my_lua_error (lua_State *L, const icu::UnicodeString &str, unsigned long level)
 //{ my_lua_error(L, to_utf8(str), level); }
 
-static UnicodeString checkustring (lua_State *L, int index)
+static icu::UnicodeString checkustring (lua_State *L, int index)
 {
         if (lua_type(L,index) != LUA_TSTRING) {
                 std::stringstream ss;
@@ -68,10 +68,10 @@ static UnicodeString checkustring (lua_State *L, int index)
                 my_lua_error(L, ss.str());
         }
         const char *str = luaL_checkstring(L,index);
-        return UnicodeString::fromUTF8(StringPiece(str));
+        return icu::UnicodeString::fromUTF8(icu::StringPiece(str));
 }
 
-static void pushustring (lua_State *L, const UnicodeString &str)
+static void pushustring (lua_State *L, const icu::UnicodeString &str)
 { lua_pushstring(L, to_utf8(str).c_str()); }
 
 
@@ -81,7 +81,7 @@ static void pushustring (lua_State *L, const UnicodeString &str)
 static int lua_utf8_reverse (lua_State *L)
 {
         check_args(L,1);
-        UnicodeString ustr = checkustring(L,1);
+        icu::UnicodeString ustr = checkustring(L,1);
         ustr.reverse();
         pushustring(L, ustr);
         return 1;
@@ -90,7 +90,7 @@ static int lua_utf8_reverse (lua_State *L)
 static int lua_utf8_len (lua_State *L)
 {
         check_args(L,1);
-        UnicodeString ustr = checkustring(L,1);
+        icu::UnicodeString ustr = checkustring(L,1);
         lua_pushnumber(L, ustr.countChar32());
         return 1;
 }
@@ -98,7 +98,7 @@ static int lua_utf8_len (lua_State *L)
 static int lua_utf8_get_property (lua_State *L)
 {
         check_args(L,2);
-        UnicodeString ustr = checkustring(L,1);
+        icu::UnicodeString ustr = checkustring(L,1);
         const char *prop_ = luaL_checkstring(L,2);
 
         for (int i=0 ; i<ustr.countChar32() ; ++i) {
@@ -126,7 +126,7 @@ static int lua_utf8_codepoint (lua_State *L)
                 pose = check_t<int>(L, 3);
         }
         if (pose <= posi) pose = posi;
-        UnicodeString ustr = checkustring(L,1);
+        icu::UnicodeString ustr = checkustring(L,1);
         if (pose > ustr.countChar32()) pose = ustr.countChar32();
         for (int i=posi ; i<=pose ; ++i) {
                 lua_pushnumber(L, ustr[i-1]);
@@ -137,7 +137,7 @@ static int lua_utf8_codepoint (lua_State *L)
 static int lua_utf8_char (lua_State *L)
 {
         int n = lua_gettop(L);  /* number of arguments */
-        UnicodeString ustr;
+        icu::UnicodeString ustr;
         for (int i=1; i<=n; i++) {
                 lua_Number cp = luaL_checknumber(L, i);
                 ustr.append((UChar32)cp);
@@ -149,7 +149,7 @@ static int lua_utf8_char (lua_State *L)
 static int lua_utf8_mt_len (lua_State *L)
 {
         check_args(L,2);
-        UnicodeString ustr = checkustring(L,1);
+        icu::UnicodeString ustr = checkustring(L,1);
         lua_pushnumber(L, ustr.countChar32());
         return 1;
 }
@@ -157,7 +157,7 @@ static int lua_utf8_mt_len (lua_State *L)
 static int lua_utf8_upper (lua_State *L)
 {
         check_args(L,1);
-        UnicodeString ustr = checkustring(L,1);
+        icu::UnicodeString ustr = checkustring(L,1);
         ustr.toUpper();
         pushustring(L, ustr);
         return 1;
@@ -166,7 +166,7 @@ static int lua_utf8_upper (lua_State *L)
 static int lua_utf8_lower (lua_State *L)
 {
         check_args(L,1);
-        UnicodeString ustr = checkustring(L,1);
+        icu::UnicodeString ustr = checkustring(L,1);
         ustr.toLower();
         pushustring(L, ustr);
         return 1;
@@ -198,7 +198,7 @@ static int lua_utf8_sub (lua_State *L)
                 default:
                 check_args(L,1);
         }
-        UnicodeString ustr = checkustring(L,1);
+        icu::UnicodeString ustr = checkustring(L,1);
 
         long len = ustr.countChar32();
 
@@ -219,7 +219,7 @@ static int lua_utf8_sub (lua_State *L)
         APP_ASSERT(limit>=0);
         APP_ASSERT(limit<=len);
         APP_ASSERT(start<=limit);
-        UnicodeString target;
+        icu::UnicodeString target;
         ustr.extractBetween(start, limit, target);
         pushustring(L, target);
         return 1;
@@ -257,8 +257,8 @@ static int lua_utf8_find (lua_State *L)
                 default:
                 check_args(L,2);
         }
-        UnicodeString haystack = checkustring(L,1);
-        UnicodeString needle = checkustring(L,2);
+        icu::UnicodeString haystack = checkustring(L,1);
+        icu::UnicodeString needle = checkustring(L,2);
 
         long haystack_len = haystack.countChar32();
         long needle_len = needle.countChar32();
@@ -282,7 +282,7 @@ static int lua_utf8_find (lua_State *L)
         } else {
                 UErrorCode status = U_ZERO_ERROR;
 
-                RegexMatcher matcher(needle, 0, status);
+                icu::RegexMatcher matcher(needle, 0, status);
                 if (U_FAILURE(status)) {
                         my_lua_error(L, "Syntax error in regex: \""+needle+"\": "+u_errorName(status));
                         return 0; //silence compiler
@@ -303,7 +303,7 @@ static int lua_utf8_find (lua_State *L)
                         lua_pushnumber(L, end);
                         long matches = matcher.groupCount();
                         for (long i=1 ; i<=matches ; ++i) {
-                                UnicodeString match = matcher.group(i, status);
+                                icu::UnicodeString match = matcher.group(i, status);
                                 if (U_FAILURE(status)) {
                                         my_lua_error(L, u_errorName(status));
                                         return 0; //silence compiler
@@ -320,13 +320,13 @@ static int lua_utf8_find (lua_State *L)
 }
         
 
-static int aux_match (lua_State *L, RegexMatcher &matcher)
+static int aux_match (lua_State *L, icu::RegexMatcher &matcher)
 {
         UErrorCode status = U_ZERO_ERROR;
         if (matcher.find()) {
                 long matches = matcher.groupCount();
                 if (matches == 0) {
-                        UnicodeString match = matcher.group(status);
+                        icu::UnicodeString match = matcher.group(status);
                         if (U_FAILURE(status)) {
                                 my_lua_error(L, u_errorName(status));
                                 return 0; //silence compiler
@@ -335,7 +335,7 @@ static int aux_match (lua_State *L, RegexMatcher &matcher)
                         return 1;
                 } else {
                         for (long i=1 ; i<=matches ; ++i) {
-                                UnicodeString match = matcher.group(i, status);
+                                icu::UnicodeString match = matcher.group(i, status);
                                 if (U_FAILURE(status)) {
                                         my_lua_error(L, u_errorName(status));
                                         return 0; //silence compiler
@@ -370,8 +370,8 @@ static int lua_utf8_match (lua_State *L)
                 default:
                 check_args(L,2);
         }
-        UnicodeString haystack = checkustring(L,1);
-        UnicodeString needle = checkustring(L,2);
+        icu::UnicodeString haystack = checkustring(L,1);
+        icu::UnicodeString needle = checkustring(L,2);
 
         long haystack_len = haystack.countChar32();
 
@@ -388,7 +388,7 @@ static int lua_utf8_match (lua_State *L)
 
         UErrorCode status = U_ZERO_ERROR;
 
-        RegexMatcher matcher(needle, 0, status);
+        icu::RegexMatcher matcher(needle, 0, status);
         if (U_FAILURE(status)) {
                 my_lua_error(L, "Syntax error in regex: \""+needle+"\": "+u_errorName(status));
                 return 0; //silence compiler
@@ -409,9 +409,9 @@ static int lua_utf8_match (lua_State *L)
 
 struct RegexWrapper {
         UErrorCode status;
-        RegexMatcher matcher;
-        UnicodeString text;
-        RegexWrapper (const UnicodeString &regex, const UnicodeString &text)
+        icu::RegexMatcher matcher;
+        icu::UnicodeString text;
+        RegexWrapper (const icu::UnicodeString &regex, const icu::UnicodeString &text)
               : status(U_ZERO_ERROR), matcher(regex, 0, status), text(text)
         { }
 };
@@ -483,8 +483,8 @@ static int lua_utf8_gmatch_iter (lua_State *L)
 static int lua_utf8_gmatch (lua_State *L)
 {
         check_args(L, 2);
-        UnicodeString haystack = checkustring(L, 1);
-        UnicodeString needle = checkustring(L, 2);
+        icu::UnicodeString haystack = checkustring(L, 1);
+        icu::UnicodeString needle = checkustring(L, 2);
 
         RegexWrapper *matcher = new RegexWrapper(needle, haystack);
         UErrorCode status = matcher->status;
@@ -539,9 +539,9 @@ static int lua_utf8_gsub (lua_State *L)
                 default:
                 check_args(L,3);
         }
-        UnicodeString haystack = checkustring(L,1);
-        UnicodeString needle = checkustring(L,2);
-        UnicodeString repl;
+        icu::UnicodeString haystack = checkustring(L,1);
+        icu::UnicodeString needle = checkustring(L,2);
+        icu::UnicodeString repl;
         int mode;
         if (lua_isfunction(L,3)) {
                 mode = 0;
@@ -554,7 +554,7 @@ static int lua_utf8_gsub (lua_State *L)
 
         UErrorCode status = U_ZERO_ERROR;
 
-        RegexMatcher matcher(needle, 0, status);
+        icu::RegexMatcher matcher(needle, 0, status);
         if (U_FAILURE(status)) {
                 my_lua_error(L, "Syntax error in regex: \""+needle+"\": "+u_errorName(status));
                 return 0; //silence compiler
@@ -562,14 +562,14 @@ static int lua_utf8_gsub (lua_State *L)
 
         matcher.reset(haystack);
 
-        UnicodeString r;
+        icu::UnicodeString r;
 
         int counter = 0;
         while (matcher.find() && counter++!=n) {
                 long matches = matcher.groupCount();
                 if (mode==0) {
                         if (matches == 0) {
-                                UnicodeString match = matcher.group(status);
+                                icu::UnicodeString match = matcher.group(status);
                                 if (U_FAILURE(status)) {
                                         my_lua_error(L, u_errorName(status));
                                         return 0; //silence compiler
@@ -579,7 +579,7 @@ static int lua_utf8_gsub (lua_State *L)
                                 lua_call(L, 1, 1);
                         } else {
                                 for (long i=1 ; i<=matches ; ++i) {
-                                        UnicodeString match = matcher.group(i, status);
+                                        icu::UnicodeString match = matcher.group(i, status);
                                         if (U_FAILURE(status)) {
                                                 my_lua_error(L, u_errorName(status));
                                                 return 0; //silence compiler
@@ -592,14 +592,14 @@ static int lua_utf8_gsub (lua_State *L)
                         repl = checkustring(L,-1);
                 } else if (mode==1) {
                         if (matches == 0) {
-                                UnicodeString match = matcher.group(status);
+                                icu::UnicodeString match = matcher.group(status);
                                 if (U_FAILURE(status)) {
                                         my_lua_error(L, u_errorName(status));
                                         return 0; //silence compiler
                                 }
                                 pushustring(L, match);
                         } else {
-                                UnicodeString match = matcher.group(1, status);
+                                icu::UnicodeString match = matcher.group(1, status);
                                 if (U_FAILURE(status)) {
                                         my_lua_error(L, u_errorName(status));
                                         return 0; //silence compiler
