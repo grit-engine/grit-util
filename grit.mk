@@ -13,4 +13,5 @@ UTIL_INCLUDE_DIRS= \
 
 UTIL_LDLIBS= \
 	-lrt \
+	-licuuc \
 
